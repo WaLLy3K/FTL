@@ -16,21 +16,21 @@
 #define max(a,b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a > _b ? _a : _b; })
 
 // Local prototypes
-void getStats(int *sock);
-void getOverTime(int *sock);
-void getTopDomains (char *client_message, int *sock);
-void getTopClients(char *client_message, int *sock);
-void getForwardDestinations(char *client_message, int *sock);
-void getForwardNames(int *sock);
-void getQueryTypes(int *sock);
-void getAllQueries(char *client_message, int *sock);
-void getRecentBlocked(char *client_message, int *sock);
-void getMemoryUsage(int *sock);
-void getForwardDestinationsOverTime(int *sock);
-void getClientID(int *sock);
-void getQueryTypesOverTime(int *sock);
-void getVersion(int *sock);
-void getDBstats(int *sock);
+void getStats(int sock);
+void getOverTime(int sock);
+void getTopDomains (char *client_message, int sock);
+void getTopClients(char *client_message, int sock);
+void getForwardDestinations(char *client_message, int sock);
+void getForwardNames(int sock);
+void getQueryTypes(int sock);
+void getAllQueries(char *client_message, int sock);
+void getRecentBlocked(char *client_message, int sock);
+void getMemoryUsage(int sock);
+void getForwardDestinationsOverTime(int sock);
+void getClientID(int sock);
+void getQueryTypesOverTime(int sock);
+void getVersion(int sock);
+void getDBstats(int sock);
 
 void process_request(char *client_message, int *sock)
 {
@@ -42,77 +42,77 @@ void process_request(char *client_message, int *sock)
 	if(command(client_message, ">stats"))
 	{
 		processed = true;
-		getStats(sock);
+		getStats(*sock);
 	}
 	else if(command(client_message, ">overTime"))
 	{
 		processed = true;
-		getOverTime(sock);
+		getOverTime(*sock);
 	}
 	else if(command(client_message, ">top-domains") || command(client_message, ">top-ads"))
 	{
 		processed = true;
-		getTopDomains(client_message, sock);
+		getTopDomains(client_message, *sock);
 	}
 	else if(command(client_message, ">top-clients"))
 	{
 		processed = true;
-		getTopClients(client_message, sock);
+		getTopClients(client_message, *sock);
 	}
 	else if(command(client_message, ">forward-dest"))
 	{
 		processed = true;
-		getForwardDestinations(client_message, sock);
+		getForwardDestinations(client_message, *sock);
 	}
 	else if(command(client_message, ">forward-names"))
 	{
 		processed = true;
-		getForwardNames(sock);
+		getForwardNames(*sock);
 	}
 	else if(command(client_message, ">querytypes"))
 	{
 		processed = true;
-		getQueryTypes(sock);
+		getQueryTypes(*sock);
 	}
 	else if(command(client_message, ">getallqueries"))
 	{
 		processed = true;
-		getAllQueries(client_message, sock);
+		getAllQueries(client_message, *sock);
 	}
 	else if(command(client_message, ">recentBlocked"))
 	{
 		processed = true;
-		getRecentBlocked(client_message, sock);
+		getRecentBlocked(client_message, *sock);
 	}
 	else if(command(client_message, ">memory"))
 	{
 		processed = true;
-		getMemoryUsage(sock);
+		getMemoryUsage(*sock);
 	}
 	else if(command(client_message, ">clientID"))
 	{
 		processed = true;
-		getClientID(sock);
+		getClientID(*sock);
 	}
 	else if(command(client_message, ">ForwardedoverTime"))
 	{
 		processed = true;
-		getForwardDestinationsOverTime(sock);
+		getForwardDestinationsOverTime(*sock);
 	}
 	else if(command(client_message, ">QueryTypesoverTime"))
 	{
 		processed = true;
-		getQueryTypesOverTime(sock);
+		getQueryTypesOverTime(*sock);
 	}
 	else if(command(client_message, ">version"))
 	{
 		processed = true;
-		getVersion(sock);
+		getVersion(*sock);
 	}
 	else if(command(client_message, ">dbstats"))
 	{
 		processed = true;
-		getDBstats(sock);
+		getDBstats(*sock);
 	}
 
 	// End of queryable commands
@@ -216,7 +216,7 @@ int cmpdesc(const void *a, const void *b)
 		return 0;
 }
 
-void getStats(int *sock)
+void getStats(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 
@@ -230,18 +230,18 @@ void getStats(int *sock)
 	}
 	sprintf(server_message,"domains_being_blocked %i\ndns_queries_today %i\nads_blocked_today %i\nads_percentage_today %f\n", \
 	        counters.gravity,total,blocked,percentage);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	sprintf(server_message,"unique_domains %i\nqueries_forwarded %i\nqueries_cached %i\n", \
 	        counters.domains,counters.forwardedqueries,counters.cached);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	sprintf(server_message,"unique_clients %i\n", \
 	        counters.clients);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	if(debugclients)
-		logg("Sent stats data to client, ID: %i", *sock);
+		logg("Sent stats data to client, ID: %i", sock);
 }
 
-void getOverTime(int *sock)
+void getOverTime(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i;
@@ -256,14 +256,14 @@ void getOverTime(int *sock)
 		if(sendit)
 		{
 			sprintf(server_message,"%i %i %i\n",overTime[i].timestamp,overTime[i].total,overTime[i].blocked);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 	}
 	if(debugclients)
-		logg("Sent overTime data to client, ID: %i", *sock);
+		logg("Sent overTime data to client, ID: %i", sock);
 }
 
-void getTopDomains(char *client_message, int *sock)
+void getTopDomains(char *client_message, int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i, temparray[counters.domains][2], count=10, num;
@@ -374,12 +374,12 @@ void getTopDomains(char *client_message, int *sock)
 				sprintf(server_message,"%i %i %s wildcard\n",i,domains[j].blockedcount,domains[j].domain);
 			else
 				sprintf(server_message,"%i %i %s\n",i,domains[j].blockedcount,domains[j].domain);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 		else if(!blocked && showpermitted && (domains[j].count - domains[j].blockedcount) > 0)
 		{
 			sprintf(server_message,"%i %i %s\n",i,(domains[j].count - domains[j].blockedcount),domains[j].domain);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 	}
 	if(excludedomains != NULL)
@@ -387,13 +387,13 @@ void getTopDomains(char *client_message, int *sock)
 	if(debugclients)
 	{
 		if(blocked)
-			logg("Sent top ads list data to client, ID: %i", *sock);
+			logg("Sent top ads list data to client, ID: %i", sock);
 		else
-			logg("Sent top domains list data to client, ID: %i", *sock);
+			logg("Sent top domains list data to client, ID: %i", sock);
 	}
 }
 
-void getTopClients(char *client_message, int *sock)
+void getTopClients(char *client_message, int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i, temparray[counters.clients][2], count=10, num;
@@ -444,17 +444,17 @@ void getTopClients(char *client_message, int *sock)
 		if(clients[j].count > 0)
 		{
 			sprintf(server_message,"%i %i %s %s\n",i,clients[j].count,clients[j].ip,clients[j].name);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 	}
 	if(excludeclients != NULL)
 		clearSetupVarsArray();
 	if(debugclients)
-		logg("Sent top clients data to client, ID: %i", *sock);
+		logg("Sent top clients data to client, ID: %i", sock);
 }
 
 
-void getForwardDestinations(char *client_message, int *sock)
+void getForwardDestinations(char *client_message, int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	bool allocated = false, sort = true;
@@ -516,7 +516,7 @@ void getForwardDestinations(char *client_message, int *sock)
 		if(count > 0)
 		{
 			sprintf(server_message,"%i %i %s %s\n",i,count,ip,name);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 
 		// Free previously allocated memory only if we allocated it
@@ -527,11 +527,11 @@ void getForwardDestinations(char *client_message, int *sock)
 		}
 	}
 	if(debugclients)
-		logg("Sent forward destination data to client, ID: %i", *sock);
+		logg("Sent forward destination data to client, ID: %i", sock);
 }
 
 
-void getForwardNames(int *sock)
+void getForwardNames(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i;
@@ -541,30 +541,30 @@ void getForwardNames(int *sock)
 		validate_access("forwarded", i, true, __LINE__, __FUNCTION__, __FILE__);
 		// Get sorted indices
 		sprintf(server_message,"%i %i %s %s\n",i,forwarded[i].count,forwarded[i].ip,forwarded[i].name);
-		swrite(server_message, *sock);
+		swrite(server_message, sock);
 	}
 
 	// Add "local" forward destination
 	sprintf(server_message,"%i %i ::1 local\n",counters.forwarded,counters.cached);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 
 	if(debugclients)
-		logg("Sent forward destination names to client, ID: %i", *sock);
+		logg("Sent forward destination names to client, ID: %i", sock);
 }
 
 
-void getQueryTypes(int *sock)
+void getQueryTypes(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 
 	sprintf(server_message,"A (IPv4): %i\nAAAA (IPv6): %i\n",counters.IPv4,counters.IPv6);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	if(debugclients)
-		logg("Sent query type data to client, ID: %i", *sock);
+		logg("Sent query type data to client, ID: %i", sock);
 }
 
 
-void getAllQueries(char *client_message, int *sock)
+void getAllQueries(char *client_message, int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 
@@ -727,7 +727,7 @@ void getAllQueries(char *client_message, int *sock)
 		{
 			sprintf(server_message,"%i %s %s hidden %i\n",queries[i].timestamp,type,domains[queries[i].domainID].domain,queries[i].status);
 		}
-		swrite(server_message, *sock);
+		swrite(server_message, sock);
 	}
 
 	// Free allocated memory
@@ -737,10 +737,10 @@ void getAllQueries(char *client_message, int *sock)
 		free(domainname);
 
 	if(debugclients)
-		logg("Sent all queries data to client, ID: %i", *sock);
+		logg("Sent all queries data to client, ID: %i", sock);
 }
 
-void getRecentBlocked(char *client_message, int *sock)
+void getRecentBlocked(char *client_message, int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i, num=1;
@@ -772,7 +772,7 @@ void getRecentBlocked(char *client_message, int *sock)
 		{
 			found++;
 			sprintf(server_message,"%s\n",domains[queries[i].domainID].domain);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 
 		if(found >= num)
@@ -782,7 +782,7 @@ void getRecentBlocked(char *client_message, int *sock)
 	}
 }
 
-void getMemoryUsage(int *sock)
+void getMemoryUsage(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	unsigned long int structbytes = sizeof(countersStruct) + sizeof(ConfigStruct) + counters.queries_MAX*sizeof(queriesDataStruct) + counters.forwarded_MAX*sizeof(forwardedDataStruct) + counters.clients_MAX*sizeof(clientsDataStruct) + counters.domains_MAX*sizeof(domainsDataStruct) + counters.overTime_MAX*sizeof(overTimeDataStruct) + (counters.wildcarddomains)*sizeof(*wildcarddomains);
@@ -790,28 +790,28 @@ void getMemoryUsage(int *sock)
 	double formated = 0.0;
 	format_memory_size(structprefix, structbytes, &formated);
 	sprintf(server_message,"memory allocated for internal data structure: %lu bytes (%.2f %sB)\n",structbytes,formated,structprefix);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	free(structprefix);
 
 	unsigned long int dynamicbytes = memory.wildcarddomains + memory.domainnames + memory.clientips + memory.clientnames + memory.forwardedips + memory.forwardednames + memory.forwarddata;
 	char *dynamicprefix = calloc(2, sizeof(char));
 	format_memory_size(dynamicprefix, dynamicbytes, &formated);
 	sprintf(server_message,"dynamically allocated allocated memory used for strings: %lu bytes (%.2f %sB)\n",dynamicbytes,formated,dynamicprefix);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	free(dynamicprefix);
 
 	unsigned long int totalbytes = structbytes + dynamicbytes;
 	char *totalprefix = calloc(2, sizeof(char));
 	format_memory_size(totalprefix, totalbytes, &formated);
 	sprintf(server_message,"Sum: %lu bytes (%.2f %sB)\n",totalbytes,formated,totalprefix);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 	free(totalprefix);
 
 	if(debugclients)
-		logg("Sent memory data to client, ID: %i", *sock);
+		logg("Sent memory data to client, ID: %i", sock);
 }
 
-void getForwardDestinationsOverTime(int *sock)
+void getForwardDestinationsOverTime(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i, sendit = -1;
@@ -845,25 +845,25 @@ void getForwardDestinationsOverTime(int *sock)
 			}
 
 			sprintf(server_message + strlen(server_message), " %i\n", overTime[i].cached + overTime[i].blocked);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 	}
 	if(debugclients)
-		logg("Sent overTime forwarded data to client, ID: %i", *sock);
+		logg("Sent overTime forwarded data to client, ID: %i", sock);
 }
 
-void getClientID(int *sock)
+void getClientID(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 
-	sprintf(server_message,"%i\n", *sock);
-	swrite(server_message, *sock);
+	sprintf(server_message,"%i\n", sock);
+	swrite(server_message, sock);
 
 	if(debugclients)
-		logg("Sent client ID to client, ID: %i", *sock);
+		logg("Sent client ID to client, ID: %i", sock);
 }
 
-void getQueryTypesOverTime(int *sock)
+void getQueryTypesOverTime(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	int i, sendit = -1;
@@ -882,24 +882,24 @@ void getQueryTypesOverTime(int *sock)
 		{
 			validate_access("overTime", i, true, __LINE__, __FUNCTION__, __FILE__);
 			sprintf(server_message, "%i %i %i\n", overTime[i].timestamp,overTime[i].querytypedata[0],overTime[i].querytypedata[1]);
-			swrite(server_message, *sock);
+			swrite(server_message, sock);
 		}
 	}
 	if(debugclients)
-		logg("Sent overTime query types data to client, ID: %i", *sock);
+		logg("Sent overTime query types data to client, ID: %i", sock);
 }
 
-void getVersion(int *sock)
+void getVersion(int sock)
 {
 	char server_message[SOCKETBUFFERLEN];
 	sprintf(server_message,"version %s\ntag %s\nbranch %s\ndate %s\n", GIT_VERSION, GIT_TAG, GIT_BRANCH, GIT_DATE);
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 
 	if(debugclients)
-		logg("Sent version info to client, ID: %i", *sock);
+		logg("Sent version info to client, ID: %i", sock);
 }
 
-void getDBstats(int *sock)
+void getDBstats(int sock)
 {
 	// Get file details
 	struct stat st;
@@ -916,8 +916,8 @@ void getDBstats(int *sock)
 
 	char server_message[SOCKETBUFFERLEN];
 	sprintf(server_message,"queries in database: %i\ndatabase filesize: %.2f %sB\nSQLite version: %s\n", get_number_of_queries_in_DB(), formated, prefix, sqlite3_libversion());
-	swrite(server_message, *sock);
+	swrite(server_message, sock);
 
 	if(debugclients)
-		logg("Sent DB info to client, ID: %i", *sock);
+		logg("Sent DB info to client, ID: %i", sock);
 }
